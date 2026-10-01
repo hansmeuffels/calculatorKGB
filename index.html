@@ -16,33 +16,70 @@
       <form id="invoer" novalidate>
         <fieldset>
           <legend>Kinderen</legend>
-          <label>
-            Aantal kinderen
-            <input type="number" id="aantal-kinderen" min="0" max="20" step="1" value="1" />
-          </label>
+          <div class="veld">
+            <label for="aantal-kinderen">Aantal kinderen</label>
+            <div class="stepper">
+              <button type="button" class="stap" data-stap="-1" aria-label="Aantal kinderen verlagen" aria-controls="aantal-kinderen">−</button>
+              <input type="number" id="aantal-kinderen" min="0" max="20" step="1" value="1" inputmode="numeric" />
+              <button type="button" class="stap" data-stap="1" aria-label="Aantal kinderen verhogen" aria-controls="aantal-kinderen">+</button>
+            </div>
+          </div>
           <p class="hint">Vul de leeftijd van elk kind in op 1 januari 2026. Voor 2027 wordt gerekend met een leeftijd die 1 jaar hoger is.</p>
-          <div id="kinderen"></div>
+          <div id="kinderen" class="kinderen"></div>
         </fieldset>
 
         <fieldset>
           <legend>Inkomen</legend>
-          <label>
-            Uw toetsingsinkomen (per jaar)
-            <input type="number" id="toetsingsinkomen" min="0" step="1" value="0" />
-          </label>
+          <div class="veld">
+            <label for="toetsingsinkomen">Uw toetsingsinkomen (per jaar, in €)</label>
+            <div class="stepper">
+              <button type="button" class="stap" data-stap="-1" aria-label="Uw toetsingsinkomen verlagen met € 1.000" aria-controls="toetsingsinkomen">−</button>
+              <input type="number" id="toetsingsinkomen" min="0" step="1000" value="0" inputmode="numeric" />
+              <button type="button" class="stap" data-stap="1" aria-label="Uw toetsingsinkomen verhogen met € 1.000" aria-controls="toetsingsinkomen">+</button>
+            </div>
+            <input
+              type="range"
+              class="schuif"
+              id="toetsingsinkomen-schuif"
+              data-voor="toetsingsinkomen"
+              min="0"
+              max="200000"
+              step="1000"
+              value="0"
+              aria-label="Uw toetsingsinkomen (schuifregelaar)"
+            />
+            <div class="schuif-schaal" aria-hidden="true"><span>€ 0</span><span>€ 200.000</span></div>
+          </div>
           <label class="checkbox">
             <input type="checkbox" id="heeft-toeslagpartner" />
             Ik heb een toeslagpartner
           </label>
-          <label id="partner-inkomen-label" hidden>
-            Toetsingsinkomen toeslagpartner (per jaar)
-            <input type="number" id="toetsingsinkomen-partner" min="0" step="1" value="0" />
-          </label>
+          <div class="veld" id="partner-inkomen" hidden>
+            <label for="toetsingsinkomen-partner">Toetsingsinkomen toeslagpartner (per jaar, in €)</label>
+            <div class="stepper">
+              <button type="button" class="stap" data-stap="-1" aria-label="Toetsingsinkomen toeslagpartner verlagen met € 1.000" aria-controls="toetsingsinkomen-partner">−</button>
+              <input type="number" id="toetsingsinkomen-partner" min="0" step="1000" value="0" inputmode="numeric" />
+              <button type="button" class="stap" data-stap="1" aria-label="Toetsingsinkomen toeslagpartner verhogen met € 1.000" aria-controls="toetsingsinkomen-partner">+</button>
+            </div>
+            <input
+              type="range"
+              class="schuif"
+              id="toetsingsinkomen-partner-schuif"
+              data-voor="toetsingsinkomen-partner"
+              min="0"
+              max="200000"
+              step="1000"
+              value="0"
+              aria-label="Toetsingsinkomen toeslagpartner (schuifregelaar)"
+            />
+            <div class="schuif-schaal" aria-hidden="true"><span>€ 0</span><span>€ 200.000</span></div>
+          </div>
         </fieldset>
       </form>
 
       <section id="resultaat" aria-live="polite">
         <h2>Uitkomst</h2>
+        <p class="hint">Alle bedragen zijn afgerond op hele euro's.</p>
         <table>
           <thead>
             <tr>
