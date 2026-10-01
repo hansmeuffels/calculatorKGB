@@ -6,6 +6,7 @@ const {
   berekenAfbouw,
   berekenKgb,
   berekenKgbReeks,
+  indexDichtstbijzijndPunt,
   rondAfOpHeleEuro,
   formatEuro,
 } = require('../src/kgb.js');
@@ -72,9 +73,10 @@ test('KGB-reeks gebruikt gezamenlijk inkomen van twee personen en de parameters 
   const reeks2026 = berekenKgbReeks(leeftijden2026, p2026);
   const reeks2027 = berekenKgbReeks(leeftijden2027, p2027);
 
-  assert.equal(reeks2026.length, 41);
-  assert.deepEqual(reeks2026.map(({ inkomen }) => inkomen).filter((inkomen) => inkomen % 100000 === 0), [
-    0, 100000, 200000, 300000, 400000,
+  assert.equal(reeks2026.length, 201);
+  assert.equal(reeks2026[reeks2026.length - 1].inkomen, 200000);
+  assert.deepEqual(reeks2026.map(({ inkomen }) => inkomen).filter((inkomen) => inkomen % 50000 === 0), [
+    0, 50000, 100000, 150000, 200000,
   ]);
   [reeks2026, reeks2027].forEach((reeks, jaarIndex) => {
     const leeftijden = jaarIndex === 0 ? leeftijden2026 : leeftijden2027;
@@ -88,13 +90,23 @@ test('KGB-reeks gebruikt gezamenlijk inkomen van twee personen en de parameters 
     });
   });
 
-  const gezamenlijkInkomen = reeks2026[4];
+  const gezamenlijkInkomen = reeks2026[40];
   assert.equal(gezamenlijkInkomen.inkomen, 40000);
   assert.notEqual(
     gezamenlijkInkomen.perMaand,
     berekenKgb({ leeftijden: leeftijden2026, toetsingsinkomen: 40000, heeftToeslagpartner: false }, p2026).perMaand
   );
   assert.notEqual(reeks2026[0].perMaand, reeks2027[0].perMaand);
+});
+
+test('dichtstbijzijnde punt in de reeks voor het tonen van bedragen bij hoveren', () => {
+  const reeks = berekenKgbReeks([0, 0], p2026);
+  assert.equal(indexDichtstbijzijndPunt(reeks, 80000), 80);
+  assert.equal(indexDichtstbijzijndPunt(reeks, 80400), 80);
+  assert.equal(indexDichtstbijzijndPunt(reeks, 80600), 81);
+  assert.equal(indexDichtstbijzijndPunt(reeks, -5000), 0);
+  assert.equal(indexDichtstbijzijndPunt(reeks, 999999), reeks.length - 1);
+  assert.equal(indexDichtstbijzijndPunt(reeks, 'abc'), 0);
 });
 
 test('zonder rechtgevende kinderen is er geen kgb', () => {

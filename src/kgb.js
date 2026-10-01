@@ -147,10 +147,14 @@
     };
   }
 
+  /** Bovengrens en stapgrootte van het gezamenlijke inkomen in de grafiek. */
+  const GRAFIEK_MAXIMUM_INKOMEN = 200000;
+  const GRAFIEK_STAPGROOTTE = 1000;
+
   /** Maandelijkse KGB-reeks bij gezamenlijk inkomen van twee personen. */
   function berekenKgbReeks(leeftijden, params) {
-    const maximumInkomen = 400000;
-    const stapgrootte = 10000;
+    const maximumInkomen = GRAFIEK_MAXIMUM_INKOMEN;
+    const stapgrootte = GRAFIEK_STAPGROOTTE;
     const punten = [];
     for (let inkomen = 0; inkomen <= maximumInkomen; inkomen += stapgrootte) {
       const uitkomst = berekenKgb(
@@ -160,6 +164,18 @@
       punten.push({ inkomen, perMaand: uitkomst.perMaand });
     }
     return punten;
+  }
+
+  /** Index van het punt in de reeks waarvan het inkomen het dichtst bij `inkomen` ligt. */
+  function indexDichtstbijzijndPunt(punten, inkomen) {
+    const doel = toNumber(inkomen);
+    let beste = 0;
+    punten.forEach((punt, index) => {
+      if (Math.abs(punt.inkomen - doel) < Math.abs(punten[beste].inkomen - doel)) {
+        beste = index;
+      }
+    });
+    return beste;
   }
 
   const euroFormaat = new Intl.NumberFormat('nl-NL', {
@@ -183,10 +199,13 @@
     DEFAULT_PARAMETERS,
     PARAMETER_DEFINITIONS,
     MAX_LEEFTIJD,
+    GRAFIEK_MAXIMUM_INKOMEN,
+    GRAFIEK_STAPGROOTTE,
     bedragVoorKind,
     berekenAfbouw,
     berekenKgb,
     berekenKgbReeks,
+    indexDichtstbijzijndPunt,
     rondAfOpHeleEuro,
     formatEuro,
   };

@@ -13,130 +13,142 @@
     </header>
 
     <main>
-      <form id="invoer" novalidate>
-        <fieldset>
-          <legend>Kinderen</legend>
-          <div class="veld">
-            <label for="aantal-kinderen">Aantal kinderen</label>
-            <div class="stepper">
-              <button type="button" class="stap" data-stap="-1" aria-label="Aantal kinderen verlagen" aria-controls="aantal-kinderen">−</button>
-              <input type="number" id="aantal-kinderen" min="0" max="20" step="1" value="1" inputmode="numeric" />
-              <button type="button" class="stap" data-stap="1" aria-label="Aantal kinderen verhogen" aria-controls="aantal-kinderen">+</button>
+      <div class="invoer-uitkomst">
+        <form id="invoer" novalidate>
+          <fieldset>
+            <legend>Kinderen</legend>
+            <div class="veld">
+              <label for="aantal-kinderen">Aantal kinderen</label>
+              <div class="stepper">
+                <button type="button" class="stap" data-stap="-1" aria-label="Aantal kinderen verlagen" aria-controls="aantal-kinderen">−</button>
+                <input type="number" id="aantal-kinderen" min="0" max="20" step="1" value="2" inputmode="numeric" />
+                <button type="button" class="stap" data-stap="1" aria-label="Aantal kinderen verhogen" aria-controls="aantal-kinderen">+</button>
+              </div>
             </div>
-          </div>
-          <p class="hint">Vul de leeftijd van elk kind in op 1 januari 2026. Voor 2027 wordt gerekend met een leeftijd die 1 jaar hoger is.</p>
-          <div id="kinderen" class="kinderen"></div>
-        </fieldset>
+            <p class="hint">Vul de leeftijd van elk kind in op 1 januari 2026. Voor 2027 wordt gerekend met een leeftijd die 1 jaar hoger is.</p>
+            <div id="kinderen" class="kinderen"></div>
+          </fieldset>
 
-        <fieldset>
-          <legend>Inkomen</legend>
-          <div class="veld">
-            <label for="toetsingsinkomen">Uw toetsingsinkomen (per jaar, in €)</label>
-            <div class="stepper">
-              <button type="button" class="stap" data-stap="-1" aria-label="Uw toetsingsinkomen verlagen met € 1.000" aria-controls="toetsingsinkomen">−</button>
-              <input type="number" id="toetsingsinkomen" min="0" step="1000" value="0" inputmode="numeric" />
-              <button type="button" class="stap" data-stap="1" aria-label="Uw toetsingsinkomen verhogen met € 1.000" aria-controls="toetsingsinkomen">+</button>
+          <fieldset>
+            <legend>Inkomen</legend>
+            <div class="veld">
+              <label for="toetsingsinkomen">Uw toetsingsinkomen (per jaar, in €)</label>
+              <div class="stepper">
+                <button type="button" class="stap" data-stap="-1" aria-label="Uw toetsingsinkomen verlagen met € 1.000" aria-controls="toetsingsinkomen">−</button>
+                <input type="number" id="toetsingsinkomen" min="0" step="1000" value="50000" inputmode="numeric" />
+                <button type="button" class="stap" data-stap="1" aria-label="Uw toetsingsinkomen verhogen met € 1.000" aria-controls="toetsingsinkomen">+</button>
+              </div>
+              <input
+                type="range"
+                class="schuif"
+                id="toetsingsinkomen-schuif"
+                data-voor="toetsingsinkomen"
+                min="0"
+                max="200000"
+                step="1000"
+                value="50000"
+                aria-label="Uw toetsingsinkomen (schuifregelaar)"
+              />
+              <div class="schuif-schaal" aria-hidden="true"><span>€ 0</span><span>€ 200.000</span></div>
             </div>
-            <input
-              type="range"
-              class="schuif"
-              id="toetsingsinkomen-schuif"
-              data-voor="toetsingsinkomen"
-              min="0"
-              max="200000"
-              step="1000"
-              value="0"
-              aria-label="Uw toetsingsinkomen (schuifregelaar)"
-            />
-            <div class="schuif-schaal" aria-hidden="true"><span>€ 0</span><span>€ 200.000</span></div>
-          </div>
-          <label class="checkbox">
-            <input type="checkbox" id="heeft-toeslagpartner" />
-            Ik heb een toeslagpartner
-          </label>
-          <div class="veld" id="partner-inkomen" hidden>
-            <label for="toetsingsinkomen-partner">Toetsingsinkomen toeslagpartner (per jaar, in €)</label>
-            <div class="stepper">
-              <button type="button" class="stap" data-stap="-1" aria-label="Toetsingsinkomen toeslagpartner verlagen met € 1.000" aria-controls="toetsingsinkomen-partner">−</button>
-              <input type="number" id="toetsingsinkomen-partner" min="0" step="1000" value="0" inputmode="numeric" />
-              <button type="button" class="stap" data-stap="1" aria-label="Toetsingsinkomen toeslagpartner verhogen met € 1.000" aria-controls="toetsingsinkomen-partner">+</button>
+            <label class="checkbox">
+              <input type="checkbox" id="heeft-toeslagpartner" checked />
+              Ik heb een toeslagpartner
+            </label>
+            <div class="veld" id="partner-inkomen">
+              <label for="toetsingsinkomen-partner">Toetsingsinkomen toeslagpartner (per jaar, in €)</label>
+              <div class="stepper">
+                <button type="button" class="stap" data-stap="-1" aria-label="Toetsingsinkomen toeslagpartner verlagen met € 1.000" aria-controls="toetsingsinkomen-partner">−</button>
+                <input type="number" id="toetsingsinkomen-partner" min="0" step="1000" value="30000" inputmode="numeric" />
+                <button type="button" class="stap" data-stap="1" aria-label="Toetsingsinkomen toeslagpartner verhogen met € 1.000" aria-controls="toetsingsinkomen-partner">+</button>
+              </div>
+              <input
+                type="range"
+                class="schuif"
+                id="toetsingsinkomen-partner-schuif"
+                data-voor="toetsingsinkomen-partner"
+                min="0"
+                max="200000"
+                step="1000"
+                value="30000"
+                aria-label="Toetsingsinkomen toeslagpartner (schuifregelaar)"
+              />
+              <div class="schuif-schaal" aria-hidden="true"><span>€ 0</span><span>€ 200.000</span></div>
             </div>
-            <input
-              type="range"
-              class="schuif"
-              id="toetsingsinkomen-partner-schuif"
-              data-voor="toetsingsinkomen-partner"
-              min="0"
-              max="200000"
-              step="1000"
-              value="0"
-              aria-label="Toetsingsinkomen toeslagpartner (schuifregelaar)"
-            />
-            <div class="schuif-schaal" aria-hidden="true"><span>€ 0</span><span>€ 200.000</span></div>
-          </div>
-        </fieldset>
-      </form>
+          </fieldset>
+        </form>
 
-      <section id="resultaat" aria-live="polite">
-        <h2>Uitkomst</h2>
-        <p class="hint">Alle bedragen zijn afgerond op hele euro's.</p>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col"></th>
-              <th scope="col">2026</th>
-              <th scope="col">2027</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Gezamenlijk toetsingsinkomen</th>
-              <td data-jaar="2026" data-veld="toetsingsinkomen"></td>
-              <td data-jaar="2027" data-veld="toetsingsinkomen"></td>
-            </tr>
-            <tr>
-              <th scope="row">Maximaal kindgebonden budget</th>
-              <td data-jaar="2026" data-veld="maximaalBedrag"></td>
-              <td data-jaar="2027" data-veld="maximaalBedrag"></td>
-            </tr>
-            <tr>
-              <th scope="row">waarvan alleenstaande-ouderkop</th>
-              <td data-jaar="2026" data-veld="alleenstaandeOuderkop"></td>
-              <td data-jaar="2027" data-veld="alleenstaandeOuderkop"></td>
-            </tr>
-            <tr>
-              <th scope="row">Vermindering door inkomen (afbouw)</th>
-              <td data-jaar="2026" data-veld="afbouw"></td>
-              <td data-jaar="2027" data-veld="afbouw"></td>
-            </tr>
-            <tr class="totaal">
-              <th scope="row">Kindgebonden budget per jaar</th>
-              <td data-jaar="2026" data-veld="perJaar"></td>
-              <td data-jaar="2027" data-veld="perJaar"></td>
-            </tr>
-            <tr class="totaal">
-              <th scope="row">Kindgebonden budget per maand</th>
-              <td data-jaar="2026" data-veld="perMaand"></td>
-              <td data-jaar="2027" data-veld="perMaand"></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="hint">
-          Dit is een indicatie. De bedragen voor 2027 zijn nog niet definitief; pas zo nodig de
-          rekenvariabelen aan.
-        </p>
-      </section>
+        <section id="resultaat" aria-live="polite">
+          <h2>Uitkomst</h2>
+          <p class="hint">Alle bedragen zijn afgerond op hele euro's.</p>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">2026</th>
+                <th scope="col">2027</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Gezamenlijk toetsingsinkomen</th>
+                <td data-jaar="2026" data-veld="toetsingsinkomen"></td>
+                <td data-jaar="2027" data-veld="toetsingsinkomen"></td>
+              </tr>
+              <tr>
+                <th scope="row">Maximaal kindgebonden budget</th>
+                <td data-jaar="2026" data-veld="maximaalBedrag"></td>
+                <td data-jaar="2027" data-veld="maximaalBedrag"></td>
+              </tr>
+              <tr>
+                <th scope="row">waarvan alleenstaande-ouderkop</th>
+                <td data-jaar="2026" data-veld="alleenstaandeOuderkop"></td>
+                <td data-jaar="2027" data-veld="alleenstaandeOuderkop"></td>
+              </tr>
+              <tr>
+                <th scope="row">Vermindering door inkomen (afbouw)</th>
+                <td data-jaar="2026" data-veld="afbouw"></td>
+                <td data-jaar="2027" data-veld="afbouw"></td>
+              </tr>
+              <tr class="totaal">
+                <th scope="row">Kindgebonden budget per jaar</th>
+                <td data-jaar="2026" data-veld="perJaar"></td>
+                <td data-jaar="2027" data-veld="perJaar"></td>
+              </tr>
+              <tr class="totaal">
+                <th scope="row">Kindgebonden budget per maand</th>
+                <td data-jaar="2026" data-veld="perMaand"></td>
+                <td data-jaar="2027" data-veld="perMaand"></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="hint">
+            Dit is een indicatie. De bedragen voor 2027 zijn nog niet definitief; pas zo nodig de
+            rekenvariabelen aan.
+          </p>
+        </section>
+      </div>
 
       <section id="grafiek" aria-labelledby="grafiek-titel">
         <h2 id="grafiek-titel">Kindgebonden budget bij verschillende inkomens</h2>
         <p id="grafiek-beschrijving" class="hint">
           Maandelijks KGB bij het gezamenlijke jaarinkomen van twee personen, met de ingevulde kindgegevens.
+          Beweeg over de grafiek of gebruik de pijltjestoetsen om de bedragen te zien.
         </p>
-        <div class="grafiek-omslag" tabindex="0" aria-label="Grafiek, horizontaal verschuifbaar op kleine schermen">
-          <svg id="grafiek-svg" viewBox="0 0 720 360" role="img" aria-labelledby="grafiek-svg-titel grafiek-svg-beschrijving">
-            <title id="grafiek-svg-titel">Kindgebonden budget per maand bij gezamenlijk inkomen</title>
-            <desc id="grafiek-svg-beschrijving">Grafiek met gezamenlijk inkomen per jaar op de horizontale as en KGB per maand op de verticale as.</desc>
-          </svg>
+        <div
+          class="grafiek-omslag"
+          id="grafiek-omslag"
+          tabindex="0"
+          aria-label="Grafiek; gebruik de pijltjestoetsen links en rechts om de bedragen per inkomen te zien"
+          aria-describedby="grafiek-tooltip"
+        >
+          <div class="grafiek-canvas">
+            <svg id="grafiek-svg" viewBox="0 0 720 360" role="img" aria-labelledby="grafiek-svg-titel grafiek-svg-beschrijving">
+              <title id="grafiek-svg-titel">Kindgebonden budget per maand bij gezamenlijk inkomen</title>
+              <desc id="grafiek-svg-beschrijving">Grafiek met gezamenlijk inkomen per jaar op de horizontale as en KGB per maand op de verticale as.</desc>
+            </svg>
+            <div id="grafiek-tooltip" class="grafiek-tooltip" role="status" aria-live="polite" hidden></div>
+          </div>
         </div>
         <div id="grafiek-legenda" class="grafiek-legenda" aria-label="Legenda"></div>
       </section>

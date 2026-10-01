@@ -54,13 +54,18 @@ header h1 {
 }
 
 main {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  align-items: start;
-  gap: 1.5rem;
   max-width: 1080px;
   margin: 1rem auto 2rem;
   padding: 0 1rem;
+}
+
+/* Invoer en uitkomst naast elkaar; de grafiek staat er altijd onder. Het meeschuivende
+   uitkomstblok blijft binnen dit blok en schuift zo niet over de grafiek. */
+.invoer-uitkomst {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  align-items: start;
+  column-gap: 1.5rem;
 }
 
 fieldset,
@@ -80,7 +85,6 @@ fieldset,
 }
 
 #grafiek {
-  grid-column: 1 / -1;
   min-width: 0;
   padding: 1.25rem 1.5rem 1rem;
   background: #fff;
@@ -99,15 +103,76 @@ fieldset,
   min-width: 0;
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  border-radius: 8px;
+}
+
+.grafiek-omslag:focus {
+  outline: none;
+}
+
+.grafiek-omslag:focus-visible {
+  outline: 3px solid rgba(47, 84, 235, 0.4);
+  outline-offset: 2px;
+}
+
+.grafiek-canvas {
+  position: relative;
+  min-width: 560px;
 }
 
 #grafiek-svg {
   display: block;
   width: 100%;
-  min-width: 560px;
   height: auto;
   overflow: visible;
   font-family: inherit;
+  cursor: crosshair;
+}
+
+.grafiek-hover-lijn {
+  stroke: var(--kleur-zacht);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.grafiek-hover-punt {
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.grafiek-tooltip {
+  position: absolute;
+  z-index: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--kleur-rand);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--schaduw);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.grafiek-tooltip[hidden] {
+  display: none;
+}
+
+.grafiek-tooltip-kop {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+}
+
+.grafiek-tooltip-rij {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.grafiek-tooltip-rij strong {
+  margin-left: auto;
+  padding-left: 0.75rem;
 }
 
 .grafiek-rooster {
