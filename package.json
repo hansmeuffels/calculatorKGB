@@ -1,0 +1,10 @@
+{
+  "name": "calculator-kgb",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rekenhulp voor het kindgebonden budget 2026 en 2027",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}
