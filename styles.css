@@ -79,6 +79,87 @@ fieldset,
   top: 1rem;
 }
 
+#grafiek {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: 1.25rem 1.5rem 1rem;
+  background: #fff;
+  border: 1px solid var(--kleur-rand);
+  border-radius: var(--radius);
+  box-shadow: var(--schaduw);
+}
+
+#grafiek h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+.grafiek-omslag {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+#grafiek-svg {
+  display: block;
+  width: 100%;
+  min-width: 560px;
+  height: auto;
+  overflow: visible;
+  font-family: inherit;
+}
+
+.grafiek-rooster {
+  stroke: var(--kleur-rand);
+  stroke-width: 1;
+}
+
+.grafiek-as {
+  stroke: var(--kleur-zacht);
+  stroke-width: 1.25;
+}
+
+.grafiek-tik {
+  fill: var(--kleur-zacht);
+  font-size: 12px;
+}
+
+.grafiek-aslabel {
+  fill: var(--kleur-tekst);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.grafiek-lijn {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.grafiek-legenda {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: -0.5rem;
+}
+
+.grafiek-legenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.grafiek-legenda-lijn {
+  width: 1.5rem;
+  height: 0;
+  border-top: 3px solid var(--kleur-reeks);
+}
+
 #resultaat h2 {
   margin: 0 0 0.25rem;
   font-size: 1.25rem;

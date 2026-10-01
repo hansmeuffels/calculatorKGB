@@ -13,6 +13,8 @@
     heeftToeslagpartner: document.getElementById('heeft-toeslagpartner'),
     partnerInkomen: document.getElementById('partner-inkomen'),
     toetsingsinkomenPartner: document.getElementById('toetsingsinkomen-partner'),
+    grafiekSvg: document.getElementById('grafiek-svg'),
+    grafiekLegenda: document.getElementById('grafiek-legenda'),
     openInstellingen: document.getElementById('open-instellingen'),
     instellingen: document.getElementById('instellingen'),
     instellingenRijen: document.getElementById('instellingen-rijen'),
@@ -134,6 +136,133 @@
     return leeftijden.map((l) => (l === '' ? '' : Number(l) + verschil));
   }
 
+  function maakSvgElement(naam, attributen, tekst) {
+    const element = document.createElementNS('http://www.w3.org/2000/svg', naam);
+    Object.entries(attributen).forEach(([sleutel, waarde]) => element.setAttribute(sleutel, String(waarde)));
+    if (tekst !== undefined) element.textContent = tekst;
+    return element;
+  }
+
+  function renderGrafiek() {
+    const breedte = 720;
+    const hoogte = 360;
+    const marge = { boven: 24, rechts: 20, onder: 64, links: 76 };
+    const plotBreedte = breedte - marge.links - marge.rechts;
+    const plotHoogte = hoogte - marge.boven - marge.onder;
+    const reeksen = JAREN.map((jaar, index) => ({
+      jaar,
+      punten: KGB.berekenKgbReeks(leeftijdenVoorJaar(jaar), parameters[jaar]),
+      kleur: index === 0 ? 'var(--kleur-primair)' : 'var(--kleur-accent)',
+    }));
+    const puntenEersteReeks = reeksen[0].punten;
+    const maximumInkomen = puntenEersteReeks[puntenEersteReeks.length - 1].inkomen;
+    const maximumKgb = Math.max(...reeksen.flatMap(({ punten }) => punten.map(({ perMaand }) => perMaand)));
+    const stapKgb = Math.max(50, Math.ceil(maximumKgb / 4 / 50) * 50);
+    const maximumY = stapKgb * 4;
+    const x = (inkomen) => marge.links + (inkomen / maximumInkomen) * plotBreedte;
+    const y = (bedrag) => marge.boven + plotHoogte - (bedrag / maximumY) * plotHoogte;
+    const fragment = document.createDocumentFragment();
+
+    for (let stap = 0; stap <= 4; stap += 1) {
+      const bedrag = stap * stapKgb;
+      const positie = y(bedrag);
+      fragment.append(
+        maakSvgElement('line', {
+          x1: marge.links,
+          x2: breedte - marge.rechts,
+          y1: positie,
+          y2: positie,
+          class: 'grafiek-rooster',
+        }),
+        maakSvgElement(
+          'text',
+          { x: marge.links - 10, y: positie + 4, class: 'grafiek-tik', 'text-anchor': 'end' },
+          KGB.formatEuro(bedrag)
+        )
+      );
+    }
+
+    for (let stap = 0; stap <= 4; stap += 1) {
+      const inkomen = (maximumInkomen / 4) * stap;
+      const positie = x(inkomen);
+      fragment.append(
+        maakSvgElement('line', {
+          x1: positie,
+          x2: positie,
+          y1: marge.boven,
+          y2: hoogte - marge.onder,
+          class: 'grafiek-rooster',
+        }),
+        maakSvgElement(
+          'text',
+          { x: positie, y: hoogte - marge.onder + 22, class: 'grafiek-tik', 'text-anchor': 'middle' },
+          KGB.formatEuro(inkomen)
+        )
+      );
+    }
+
+    fragment.append(
+      maakSvgElement('line', {
+        x1: marge.links,
+        x2: marge.links,
+        y1: marge.boven,
+        y2: hoogte - marge.onder,
+        class: 'grafiek-as',
+      }),
+      maakSvgElement('line', {
+        x1: marge.links,
+        x2: breedte - marge.rechts,
+        y1: hoogte - marge.onder,
+        y2: hoogte - marge.onder,
+        class: 'grafiek-as',
+      }),
+      maakSvgElement(
+        'text',
+        { x: marge.links + plotBreedte / 2, y: hoogte - 12, class: 'grafiek-aslabel', 'text-anchor': 'middle' },
+        'Gezamenlijk inkomen per jaar (2 personen)'
+      ),
+      maakSvgElement(
+        'text',
+        {
+          x: 18,
+          y: marge.boven + plotHoogte / 2,
+          class: 'grafiek-aslabel',
+          'text-anchor': 'middle',
+          transform: `rotate(-90 18 ${marge.boven + plotHoogte / 2})`,
+        },
+        'KGB per maand'
+      )
+    );
+
+    reeksen.forEach(({ jaar, punten, kleur }) => {
+      const pad = punten
+        .map(({ inkomen, perMaand }, index) => `${index === 0 ? 'M' : 'L'} ${x(inkomen)} ${y(perMaand)}`)
+        .join(' ');
+      fragment.append(maakSvgElement('path', { d: pad, class: 'grafiek-lijn', stroke: kleur }));
+    });
+
+    el.grafiekSvg.replaceChildren(
+      maakSvgElement('title', { id: 'grafiek-svg-titel' }, 'Kindgebonden budget per maand bij gezamenlijk inkomen'),
+      maakSvgElement(
+        'desc',
+        { id: 'grafiek-svg-beschrijving' },
+        `Maandelijks KGB bij een gezamenlijk inkomen van € 0 tot ${KGB.formatEuro(maximumInkomen)} voor twee personen.`
+      ),
+      fragment
+    );
+    el.grafiekLegenda.replaceChildren();
+    reeksen.forEach(({ jaar, kleur }) => {
+      const item = document.createElement('span');
+      item.className = 'grafiek-legenda-item';
+      const lijn = document.createElement('span');
+      lijn.className = 'grafiek-legenda-lijn';
+      lijn.style.setProperty('--kleur-reeks', kleur);
+      lijn.setAttribute('aria-hidden', 'true');
+      item.append(lijn, document.createTextNode(String(jaar)));
+      el.grafiekLegenda.appendChild(item);
+    });
+  }
+
   function bereken() {
     const heeftPartner = el.heeftToeslagpartner.checked;
     el.partnerInkomen.hidden = !heeftPartner;
@@ -152,6 +281,7 @@
         cel.textContent = KGB.formatEuro(uitkomst[cel.dataset.veld]);
       });
     });
+    renderGrafiek();
   }
 
   function renderInstellingen() {
