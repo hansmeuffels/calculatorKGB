@@ -147,6 +147,21 @@
     };
   }
 
+  /** Maandelijkse KGB-reeks bij gezamenlijk inkomen van twee personen. */
+  function berekenKgbReeks(leeftijden, params) {
+    const maximumInkomen = 400000;
+    const stapgrootte = 10000;
+    const punten = [];
+    for (let inkomen = 0; inkomen <= maximumInkomen; inkomen += stapgrootte) {
+      const uitkomst = berekenKgb(
+        { leeftijden, toetsingsinkomen: inkomen, heeftToeslagpartner: true, toetsingsinkomenPartner: 0 },
+        params
+      );
+      punten.push({ inkomen, perMaand: uitkomst.perMaand });
+    }
+    return punten;
+  }
+
   const euroFormaat = new Intl.NumberFormat('nl-NL', {
     style: 'currency',
     currency: 'EUR',
@@ -171,6 +186,7 @@
     bedragVoorKind,
     berekenAfbouw,
     berekenKgb,
+    berekenKgbReeks,
     rondAfOpHeleEuro,
     formatEuro,
   };

@@ -5,6 +5,7 @@ const {
   bedragVoorKind,
   berekenAfbouw,
   berekenKgb,
+  berekenKgbReeks,
   rondAfOpHeleEuro,
   formatEuro,
 } = require('../src/kgb.js');
@@ -63,6 +64,37 @@ test('vanaf 2027 geldt boven de inkomensgrens een verhoogd afbouwpercentage', ()
 
 test('zonder inkomensgrens (2026) geldt alleen het gewone afbouwpercentage', () => {
   assert.ok(Math.abs(berekenAfbouw(100000, 39141, p2026) - (100000 - 39141) * 0.076) < 1e-9);
+});
+
+test('KGB-reeks gebruikt gezamenlijk inkomen van twee personen en de parameters per jaar', () => {
+  const leeftijden2026 = [5, 13];
+  const leeftijden2027 = [6, 14];
+  const reeks2026 = berekenKgbReeks(leeftijden2026, p2026);
+  const reeks2027 = berekenKgbReeks(leeftijden2027, p2027);
+
+  assert.equal(reeks2026.length, 41);
+  assert.deepEqual(reeks2026.map(({ inkomen }) => inkomen).filter((inkomen) => inkomen % 100000 === 0), [
+    0, 100000, 200000, 300000, 400000,
+  ]);
+  [reeks2026, reeks2027].forEach((reeks, jaarIndex) => {
+    const leeftijden = jaarIndex === 0 ? leeftijden2026 : leeftijden2027;
+    const params = jaarIndex === 0 ? p2026 : p2027;
+    reeks.forEach(({ inkomen, perMaand }) => {
+      const verwacht = berekenKgb(
+        { leeftijden, toetsingsinkomen: inkomen, heeftToeslagpartner: true, toetsingsinkomenPartner: 0 },
+        params
+      ).perMaand;
+      assert.equal(perMaand, verwacht);
+    });
+  });
+
+  const gezamenlijkInkomen = reeks2026[4];
+  assert.equal(gezamenlijkInkomen.inkomen, 40000);
+  assert.notEqual(
+    gezamenlijkInkomen.perMaand,
+    berekenKgb({ leeftijden: leeftijden2026, toetsingsinkomen: 40000, heeftToeslagpartner: false }, p2026).perMaand
+  );
+  assert.notEqual(reeks2026[0].perMaand, reeks2027[0].perMaand);
 });
 
 test('zonder rechtgevende kinderen is er geen kgb', () => {
