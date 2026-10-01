@@ -13,7 +13,9 @@
     heeftToeslagpartner: document.getElementById('heeft-toeslagpartner'),
     partnerInkomen: document.getElementById('partner-inkomen'),
     toetsingsinkomenPartner: document.getElementById('toetsingsinkomen-partner'),
+    grafiekOmslag: document.getElementById('grafiek-omslag'),
     grafiekSvg: document.getElementById('grafiek-svg'),
+    grafiekTooltip: document.getElementById('grafiek-tooltip'),
     grafiekLegenda: document.getElementById('grafiek-legenda'),
     openInstellingen: document.getElementById('open-instellingen'),
     instellingen: document.getElementById('instellingen'),
@@ -22,8 +24,10 @@
     schuiven: Array.from(document.querySelectorAll('input.schuif')),
   };
 
-  let leeftijden = [0];
+  let leeftijden = [0, 0];
   let parameters = laadParameters();
+  let grafiek = null;
+  let grafiekIndex = null;
 
   function kopieStandaard() {
     return JSON.parse(JSON.stringify(KGB.DEFAULT_PARAMETERS));
@@ -241,6 +245,9 @@
       fragment.append(maakSvgElement('path', { d: pad, class: 'grafiek-lijn', stroke: kleur }));
     });
 
+    const hover = maakSvgElement('g', { class: 'grafiek-hover', 'aria-hidden': 'true', visibility: 'hidden' });
+    fragment.append(hover);
+
     el.grafiekSvg.replaceChildren(
       maakSvgElement('title', { id: 'grafiek-svg-titel' }, 'Kindgebonden budget per maand bij gezamenlijk inkomen'),
       maakSvgElement(
@@ -261,6 +268,90 @@
       item.append(lijn, document.createTextNode(String(jaar)));
       el.grafiekLegenda.appendChild(item);
     });
+
+    grafiek = { breedte, hoogte, marge, plotBreedte, maximumInkomen, reeksen, x, y, hover };
+    toonGrafiekWaarde(grafiekIndex);
+  }
+
+  function toonGrafiekWaarde(index) {
+    grafiekIndex = index;
+    if (!grafiek) return;
+    const { breedte, hoogte, marge, reeksen, x, y, hover } = grafiek;
+    if (index === null) {
+      hover.setAttribute('visibility', 'hidden');
+      el.grafiekTooltip.hidden = true;
+      return;
+    }
+
+    const inkomen = reeksen[0].punten[index].inkomen;
+    const positie = x(inkomen);
+    hover.replaceChildren(
+      maakSvgElement('line', {
+        x1: positie,
+        x2: positie,
+        y1: marge.boven,
+        y2: hoogte - marge.onder,
+        class: 'grafiek-hover-lijn',
+      }),
+      ...reeksen.map(({ punten, kleur }) =>
+        maakSvgElement('circle', { cx: positie, cy: y(punten[index].perMaand), r: 5, fill: kleur, class: 'grafiek-hover-punt' })
+      )
+    );
+    hover.setAttribute('visibility', 'visible');
+
+    const kop = document.createElement('p');
+    kop.className = 'grafiek-tooltip-kop';
+    kop.textContent = `Inkomen ${KGB.formatEuro(inkomen)} per jaar`;
+    const rijen = reeksen.map(({ jaar, punten, kleur }) => {
+      const rij = document.createElement('p');
+      rij.className = 'grafiek-tooltip-rij';
+      const lijn = document.createElement('span');
+      lijn.className = 'grafiek-legenda-lijn';
+      lijn.style.setProperty('--kleur-reeks', kleur);
+      lijn.setAttribute('aria-hidden', 'true');
+      const bedrag = document.createElement('strong');
+      bedrag.textContent = `${KGB.formatEuro(punten[index].perMaand)} per maand`;
+      rij.append(lijn, document.createTextNode(`${jaar}:`), bedrag);
+      return rij;
+    });
+    el.grafiekTooltip.replaceChildren(kop, ...rijen);
+    el.grafiekTooltip.style.top = `${(marge.boven / hoogte) * 100}%`;
+    el.grafiekTooltip.hidden = false;
+
+    // Rechts van de lijn tonen, anders links ervan, en altijd binnen het zichtbare deel van de grafiek.
+    const canvas = el.grafiekTooltip.parentElement.getBoundingClientRect();
+    const zichtbaar = el.grafiekOmslag.getBoundingClientRect();
+    const punt = canvas.left + (positie / breedte) * canvas.width;
+    const tooltipBreedte = el.grafiekTooltip.offsetWidth;
+    let links = punt + 12;
+    if (links + tooltipBreedte > zichtbaar.right) links = punt - 12 - tooltipBreedte;
+    links = Math.max(zichtbaar.left, Math.min(links, zichtbaar.right - tooltipBreedte));
+    el.grafiekTooltip.style.left = `${links - canvas.left}px`;
+  }
+
+  function grafiekIndexBijPositie(clientX) {
+    const rechthoek = el.grafiekSvg.getBoundingClientRect();
+    if (!grafiek || rechthoek.width === 0) return null;
+    const { breedte, marge, plotBreedte, maximumInkomen, reeksen } = grafiek;
+    const svgX = ((clientX - rechthoek.left) / rechthoek.width) * breedte;
+    if (svgX < marge.links - 10 || svgX > breedte - marge.rechts + 10) return null;
+    const inkomen = ((svgX - marge.links) / plotBreedte) * maximumInkomen;
+    return KGB.indexDichtstbijzijndPunt(reeksen[0].punten, inkomen);
+  }
+
+  function grafiekIndexIngevuldInkomen() {
+    const partnerInkomen = el.heeftToeslagpartner.checked ? Number(el.toetsingsinkomenPartner.value) || 0 : 0;
+    const inkomen = (Number(el.toetsingsinkomen.value) || 0) + partnerInkomen;
+    return KGB.indexDichtstbijzijndPunt(grafiek.reeksen[0].punten, inkomen);
+  }
+
+  function houdGrafiekWaardeInBeeld(index) {
+    const omslag = el.grafiekOmslag;
+    if (omslag.scrollWidth <= omslag.clientWidth) return;
+    const positie = (grafiek.x(grafiek.reeksen[0].punten[index].inkomen) / grafiek.breedte) * omslag.scrollWidth;
+    if (positie < omslag.scrollLeft || positie > omslag.scrollLeft + omslag.clientWidth) {
+      omslag.scrollLeft = positie - omslag.clientWidth / 2;
+    }
   }
 
   function bereken() {
@@ -342,6 +433,31 @@
       bereken();
     });
     werkSchuifBij(schuif);
+  });
+  ['pointermove', 'pointerdown'].forEach((type) => {
+    el.grafiekSvg.addEventListener(type, (event) => toonGrafiekWaarde(grafiekIndexBijPositie(event.clientX)));
+  });
+  el.grafiekSvg.addEventListener('pointerleave', (event) => {
+    if (event.pointerType !== 'touch') toonGrafiekWaarde(null);
+  });
+  el.grafiekOmslag.addEventListener('focus', () => {
+    if (grafiekIndex === null) toonGrafiekWaarde(grafiekIndexIngevuldInkomen());
+  });
+  el.grafiekOmslag.addEventListener('blur', () => toonGrafiekWaarde(null));
+  el.grafiekOmslag.addEventListener('keydown', (event) => {
+    if (!grafiek) return;
+    const laatste = grafiek.reeksen[0].punten.length - 1;
+    const huidig = grafiekIndex === null ? grafiekIndexIngevuldInkomen() : grafiekIndex;
+    const stappen = { ArrowLeft: -1, ArrowRight: 1, PageDown: -10, PageUp: 10 };
+    let nieuw;
+    if (event.key in stappen) nieuw = Math.min(laatste, Math.max(0, huidig + stappen[event.key]));
+    else if (event.key === 'Home') nieuw = 0;
+    else if (event.key === 'End') nieuw = laatste;
+    else if (event.key === 'Escape') nieuw = null;
+    else return;
+    event.preventDefault();
+    if (nieuw !== null) houdGrafiekWaardeInBeeld(nieuw);
+    toonGrafiekWaarde(nieuw);
   });
   el.openInstellingen.addEventListener('click', () => {
     renderInstellingen();
