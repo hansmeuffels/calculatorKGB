@@ -147,6 +147,23 @@
     };
   }
 
+  const euroFormaat = new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  /** Rond een bedrag af op hele euro's (zonder -0). */
+  function rondAfOpHeleEuro(bedrag) {
+    return Math.round(toNumber(bedrag)) || 0;
+  }
+
+  /** Bedrag als tekst in hele euro's, bijvoorbeeld "€ 1.235". */
+  function formatEuro(bedrag) {
+    return euroFormaat.format(rondAfOpHeleEuro(bedrag));
+  }
+
   return {
     DEFAULT_PARAMETERS,
     PARAMETER_DEFINITIONS,
@@ -154,5 +171,7 @@
     bedragVoorKind,
     berekenAfbouw,
     berekenKgb,
+    rondAfOpHeleEuro,
+    formatEuro,
   };
 });

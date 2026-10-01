@@ -1,6 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { DEFAULT_PARAMETERS, bedragVoorKind, berekenAfbouw, berekenKgb } = require('../src/kgb.js');
+const {
+  DEFAULT_PARAMETERS,
+  bedragVoorKind,
+  berekenAfbouw,
+  berekenKgb,
+  rondAfOpHeleEuro,
+  formatEuro,
+} = require('../src/kgb.js');
 
 const p2026 = DEFAULT_PARAMETERS[2026];
 const p2027 = DEFAULT_PARAMETERS[2027];
@@ -62,4 +69,22 @@ test('zonder rechtgevende kinderen is er geen kgb', () => {
   const r = berekenKgb({ leeftijden: [18, 20], toetsingsinkomen: 0, heeftToeslagpartner: false }, p2026);
   assert.equal(r.perJaar, 0);
   assert.equal(r.alleenstaandeOuderkop, 0);
+});
+
+test('bedragen worden afgerond op hele euro\'s', () => {
+  assert.equal(rondAfOpHeleEuro(1234.49), 1234);
+  assert.equal(rondAfOpHeleEuro(1234.5), 1235);
+  assert.equal(rondAfOpHeleEuro(-0.4), 0);
+  assert.ok(Object.is(rondAfOpHeleEuro(-0.4), 0), 'geen -0');
+  assert.equal(rondAfOpHeleEuro('abc'), 0);
+});
+
+test('formatEuro toont hele euro\'s zonder centen', () => {
+  const normaliseer = (tekst) => tekst.replace(/\s/g, ' ');
+  assert.equal(normaliseer(formatEuro(1234.56)), '€ 1.235');
+  assert.equal(normaliseer(formatEuro(0)), '€ 0');
+  assert.equal(normaliseer(formatEuro(-0.2)), '€ 0');
+  assert.equal(normaliseer(formatEuro(39141)), '€ 39.141');
+  const r = berekenKgb({ leeftijden: [8], toetsingsinkomen: 30000, heeftToeslagpartner: false }, p2026);
+  assert.doesNotMatch(formatEuro(r.perMaand), /,/);
 });

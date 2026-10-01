@@ -5,19 +5,19 @@
   const OPSLAG_SLEUTEL = 'kgb-rekenvariabelen';
   const MAX_KINDEREN = 20;
 
-  const euro = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
-
   const el = {
+    invoer: document.getElementById('invoer'),
     aantalKinderen: document.getElementById('aantal-kinderen'),
     kinderen: document.getElementById('kinderen'),
     toetsingsinkomen: document.getElementById('toetsingsinkomen'),
     heeftToeslagpartner: document.getElementById('heeft-toeslagpartner'),
-    partnerLabel: document.getElementById('partner-inkomen-label'),
+    partnerInkomen: document.getElementById('partner-inkomen'),
     toetsingsinkomenPartner: document.getElementById('toetsingsinkomen-partner'),
     openInstellingen: document.getElementById('open-instellingen'),
     instellingen: document.getElementById('instellingen'),
     instellingenRijen: document.getElementById('instellingen-rijen'),
     herstelStandaard: document.getElementById('herstel-standaard'),
+    schuiven: Array.from(document.querySelectorAll('input.schuif')),
   };
 
   let leeftijden = [0];
@@ -62,21 +62,71 @@
 
     el.kinderen.replaceChildren();
     leeftijden.forEach((leeftijd, index) => {
+      const naam = `Leeftijd kind ${index + 1}`;
+      const id = `leeftijd-kind-${index + 1}`;
+      const veld = document.createElement('div');
+      veld.className = 'veld';
       const label = document.createElement('label');
-      label.textContent = `Leeftijd kind ${index + 1}`;
+      label.htmlFor = id;
+      label.textContent = naam;
       const input = document.createElement('input');
       input.type = 'number';
+      input.id = id;
       input.min = '0';
       input.max = '30';
       input.step = '1';
+      input.inputMode = 'numeric';
       input.value = String(leeftijd);
       input.addEventListener('input', () => {
         leeftijden[index] = input.value === '' ? '' : Number(input.value);
         bereken();
       });
-      label.appendChild(input);
-      el.kinderen.appendChild(label);
+      veld.append(label, maakStepper(input, naam));
+      el.kinderen.appendChild(veld);
     });
+  }
+
+  function maakStapKnop(input, naam, richting) {
+    const knop = document.createElement('button');
+    knop.type = 'button';
+    knop.className = 'stap';
+    knop.dataset.stap = String(richting);
+    knop.setAttribute('aria-controls', input.id);
+    knop.setAttribute('aria-label', `${naam} ${richting < 0 ? 'verlagen' : 'verhogen'}`);
+    knop.textContent = richting < 0 ? '−' : '+';
+    return knop;
+  }
+
+  function maakStepper(input, naam) {
+    const stepper = document.createElement('div');
+    stepper.className = 'stepper';
+    stepper.append(maakStapKnop(input, naam, -1), input, maakStapKnop(input, naam, 1));
+    return stepper;
+  }
+
+  function stap(knop) {
+    const input = document.getElementById(knop.getAttribute('aria-controls'));
+    if (!input) return;
+    const richting = Number(knop.dataset.stap);
+    try {
+      if (richting < 0) input.stepDown();
+      else input.stepUp();
+    } catch (e) {
+      const stapgrootte = Number(input.step) || 1;
+      const nieuw = Math.max(Number(input.min) || 0, (Number(input.value) || 0) + richting * stapgrootte);
+      input.value = String(nieuw);
+    }
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function werkSchuifBij(schuif) {
+    const bron = document.getElementById(schuif.dataset.voor);
+    schuif.value = bron.value === '' ? '0' : bron.value;
+    const min = Number(schuif.min);
+    const max = Number(schuif.max);
+    const procent = ((Number(schuif.value) - min) / (max - min)) * 100;
+    schuif.style.setProperty('--vulling', `${procent}%`);
+    schuif.setAttribute('aria-valuetext', KGB.formatEuro(schuif.value));
   }
 
   function leeftijdenVoorJaar(jaar) {
@@ -86,7 +136,7 @@
 
   function bereken() {
     const heeftPartner = el.heeftToeslagpartner.checked;
-    el.partnerLabel.hidden = !heeftPartner;
+    el.partnerInkomen.hidden = !heeftPartner;
 
     JAREN.forEach((jaar) => {
       const uitkomst = KGB.berekenKgb(
@@ -99,7 +149,7 @@
         parameters[jaar]
       );
       document.querySelectorAll(`#resultaat td[data-jaar="${jaar}"]`).forEach((cel) => {
-        cel.textContent = euro.format(uitkomst[cel.dataset.veld]);
+        cel.textContent = KGB.formatEuro(uitkomst[cel.dataset.veld]);
       });
     });
   }
@@ -145,9 +195,24 @@
     renderKinderen();
     bereken();
   });
-  [el.toetsingsinkomen, el.toetsingsinkomenPartner, el.heeftToeslagpartner].forEach((input) =>
-    input.addEventListener('input', bereken)
-  );
+  el.heeftToeslagpartner.addEventListener('input', bereken);
+  el.invoer.addEventListener('click', (event) => {
+    const knop = event.target.closest('button.stap');
+    if (knop) stap(knop);
+  });
+  el.schuiven.forEach((schuif) => {
+    const bron = document.getElementById(schuif.dataset.voor);
+    bron.addEventListener('input', () => {
+      werkSchuifBij(schuif);
+      bereken();
+    });
+    schuif.addEventListener('input', () => {
+      bron.value = schuif.value;
+      werkSchuifBij(schuif);
+      bereken();
+    });
+    werkSchuifBij(schuif);
+  });
   el.openInstellingen.addEventListener('click', () => {
     renderInstellingen();
     el.instellingen.showModal();

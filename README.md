@@ -12,6 +12,10 @@ Invoer:
 - uw toetsingsinkomen
 - wel / geen toeslagpartner en het toetsingsinkomen van de toeslagpartner
 
+De inkomens kunnen worden ingetypt of met een schuifregelaar (€ 0 – € 200.000) worden ingesteld; de
+−/+ knoppen en de pijltjestoetsen verspringen per € 1.000. Alle uitkomsten worden afgerond op hele euro's
+getoond.
+
 Via de knop **Rekenvariabelen** kunt u per jaar de gebruikte waarden inzien en aanpassen
 (opgeslagen in de browser, met een knop om de standaardwaarden te herstellen):
 - drempelinkomen alleenstaande ouder / met toeslagpartner
