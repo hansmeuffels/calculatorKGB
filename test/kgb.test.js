@@ -67,8 +67,8 @@ test('zonder inkomensgrens (2026) geldt alleen het gewone afbouwpercentage', () 
 });
 
 test('KGB-reeks gebruikt gezamenlijk inkomen van twee personen en de parameters per jaar', () => {
-  const leeftijden2026 = [5, 13];
-  const leeftijden2027 = [6, 14];
+  const leeftijden2026 = [11, 15];
+  const leeftijden2027 = [12, 16];
   const reeks2026 = berekenKgbReeks(leeftijden2026, p2026);
   const reeks2027 = berekenKgbReeks(leeftijden2027, p2027);
 

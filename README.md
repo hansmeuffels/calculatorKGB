@@ -16,6 +16,9 @@ De inkomens kunnen worden ingetypt of met een schuifregelaar (€ 0 – € 200.
 −/+ knoppen en de pijltjestoetsen verspringen per € 1.000. Alle uitkomsten worden afgerond op hele euro's
 getoond.
 
+De grafiek onder de uitkomsten toont het maandelijkse kindgebonden budget bij verschillende gezamenlijke
+inkomens, uitgaande van twee personen en de ingevulde kindgegevens.
+
 Via de knop **Rekenvariabelen** kunt u per jaar de gebruikte waarden inzien en aanpassen
 (opgeslagen in de browser, met een knop om de standaardwaarden te herstellen):
 - drempelinkomen alleenstaande ouder / met toeslagpartner
