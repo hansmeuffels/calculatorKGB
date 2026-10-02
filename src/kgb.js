@@ -16,8 +16,7 @@
 
   /**
    * Standaardwaarden van de rekenvariabelen per jaar (bedragen in euro per jaar).
-   * De waarden voor 2027 zijn een voorlopige inschatting en kunnen in de app
-   * worden aangepast.
+   * De waarden kunnen in de app worden aangepast.
    */
   const DEFAULT_PARAMETERS = {
     2026: {
@@ -32,12 +31,12 @@
       verhoogdAfbouwpercentage: null,
     },
     2027: {
-      drempelinkomenAlleenstaande: 29736,
-      drempelinkomenToeslagpartner: 39141,
-      bedragPerKind: 2651,
-      verhoging12tot15: 724,
-      verhoging16en17: 964,
-      alleenstaandeOuderkop: 3416,
+      drempelinkomenAlleenstaande: 30910,
+      drempelinkomenToeslagpartner: 40560,
+      bedragPerKind: 2653,
+      verhoging12tot15: 729,
+      verhoging16en17: 976,
+      alleenstaandeOuderkop: 3505,
       afbouwpercentage: 8.05,
       inkomensgrensVerhoogdAfbouwpercentage: 61917,
       verhoogdAfbouwpercentage: 9.95,
