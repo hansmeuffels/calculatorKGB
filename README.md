@@ -30,7 +30,8 @@ Via de knop **Rekenvariabelen** kunt u per jaar de gebruikte waarden inzien en a
 - afbouwpercentage
 - inkomensgrens verhoogd afbouwpercentage en verhoogd afbouwpercentage (vanaf 2027)
 
-De standaardwaarden voor 2027 zijn voorlopig; controleer de actuele bedragen bij de Belastingdienst.
+De standaardwaarden voor 2027 zijn gebaseerd op de opgegeven cijfers; pas ze zo nodig aan via
+**Rekenvariabelen**.
 
 ## Berekening
 

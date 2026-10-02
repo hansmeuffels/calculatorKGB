@@ -53,14 +53,48 @@ test('kgb wordt nooit negatief', () => {
   assert.equal(r.perMaand, 0);
 });
 
-test('vanaf 2027 geldt boven de inkomensgrens een verhoogd afbouwpercentage', () => {
+test('2027 gebruikt de opgegeven standaardwaarden', () => {
+  assert.deepEqual(p2027, {
+    drempelinkomenAlleenstaande: 30910,
+    drempelinkomenToeslagpartner: 40560,
+    bedragPerKind: 2653,
+    verhoging12tot15: 729,
+    verhoging16en17: 976,
+    alleenstaandeOuderkop: 3505,
+    afbouwpercentage: 8.05,
+    inkomensgrensVerhoogdAfbouwpercentage: 61917,
+    verhoogdAfbouwpercentage: 9.95,
+  });
+});
+
+test('2027 bouwt vanaf beide drempelinkomens progressief af en versnelt boven het tweede knikpunt', () => {
   const grens = p2027.inkomensgrensVerhoogdAfbouwpercentage;
-  const drempel = p2027.drempelinkomenToeslagpartner;
-  const afbouw = berekenAfbouw(grens + 1000, drempel, p2027);
-  const verwacht = (grens - drempel) * (p2027.afbouwpercentage / 100) + 1000 * (p2027.verhoogdAfbouwpercentage / 100);
-  assert.ok(Math.abs(afbouw - verwacht) < 1e-9);
-  // Onder de grens geldt alleen het normale afbouwpercentage.
-  assert.ok(Math.abs(berekenAfbouw(drempel + 1000, drempel, p2027) - 1000 * (p2027.afbouwpercentage / 100)) < 1e-9);
+  const thresholds = [
+    { drempel: p2027.drempelinkomenAlleenstaande, partner: false },
+    { drempel: p2027.drempelinkomenToeslagpartner, partner: true },
+  ];
+
+  thresholds.forEach(({ drempel, partner }) => {
+    const berekenHuishouden = (inkomen) =>
+      berekenKgb({
+        leeftijden: [5],
+        toetsingsinkomen: inkomen,
+        heeftToeslagpartner: partner,
+        toetsingsinkomenPartner: 0,
+      }, p2027).afbouw;
+
+    assert.equal(berekenHuishouden(drempel), 0);
+    assert.equal(berekenHuishouden(drempel - 1), 0);
+    assert.ok(Math.abs(berekenHuishouden(drempel + 100) - 100 * 0.0805) < 1e-9);
+    assert.ok(Math.abs(berekenAfbouw(grens - 100, drempel, p2027) - (grens - 100 - drempel) * 0.0805) < 1e-9);
+    assert.ok(Math.abs(berekenAfbouw(grens, drempel, p2027) - (grens - drempel) * 0.0805) < 1e-9);
+    assert.ok(
+      Math.abs(
+        berekenAfbouw(grens + 100, drempel, p2027) -
+          ((grens - drempel) * 0.0805 + 100 * 0.0995)
+      ) < 1e-9
+    );
+  });
 });
 
 test('zonder inkomensgrens (2026) geldt alleen het gewone afbouwpercentage', () => {
